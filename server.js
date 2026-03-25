@@ -8,6 +8,7 @@ const logger = require("./utils/logger");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const vendorRoutes = require("./routes/vendorRoutes");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/vendor", vendorRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

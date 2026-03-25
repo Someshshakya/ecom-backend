@@ -46,5 +46,22 @@ function authorize(...roles) {
   };
 }
 
-module.exports = { protect, authorize };
+function vendorApproved(req, res, next) {
+  if (!req.user) {
+    res.status(401);
+    return next(new Error("Not authorized"));
+  }
+  if (req.user.role !== "vendor") {
+    res.status(403);
+    return next(new Error("Vendor access only"));
+  }
+  const status = req.user.vendorDetails?.approvalStatus;
+  if (status !== "approved") {
+    res.status(403);
+    return next(new Error("Vendor is not approved"));
+  }
+  next();
+}
+
+module.exports = { protect, authorize, vendorApproved };
 
