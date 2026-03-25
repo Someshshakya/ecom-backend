@@ -16,7 +16,9 @@ const vendorProfileSchema = Joi.object({
 }).min(1);
 
 const orderStatusSchema = Joi.object({
-  status: Joi.string().valid("pending", "processing", "shipped", "delivered", "cancelled").required()
+  orderStatus: Joi.string().valid("confirmed", "processing", "shipped", "delivered", "cancelled").required(),
+  note: Joi.string().allow("").optional(),
+  trackingNumber: Joi.string().allow("").optional()
 });
 
 async function getVendorDashboard(req, res, next) {
@@ -131,8 +133,15 @@ async function updateVendorOrderStatus(req, res, next) {
       throw new Error("Order not found");
     }
 
-    order.status = value.status;
-    if (value.status === "delivered") order.deliveredAt = new Date();
+    order.orderStatus = value.orderStatus;
+    if (value.orderStatus === "delivered") order.deliveredAt = new Date();
+    if (value.trackingNumber !== undefined) {
+      order.trackingNumber = value.trackingNumber || undefined;
+    }
+    order.statusHistory.push({
+      status: value.orderStatus,
+      note: value.note || "Updated by vendor"
+    });
     await order.save();
 
     res.json({ order });
@@ -189,7 +198,7 @@ async function getVendorAnalytics(req, res, next) {
 
     const ordersByStatus = await Order.aggregate([
       { $match: { vendor: vendorId, createdAt: { $gte: since } } },
-      { $group: { _id: "$status", count: { $sum: 1 }, revenue: { $sum: "$totalAmount" } } },
+      { $group: { _id: "$orderStatus", count: { $sum: 1 }, revenue: { $sum: "$totalAmount" } } },
       { $sort: { count: -1 } },
       { $project: { _id: 0, status: "$_id", count: 1, revenue: 1 } }
     ]);

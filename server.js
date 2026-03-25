@@ -11,9 +11,12 @@ const adminRoutes = require("./routes/adminRoutes");
 const vendorRoutes = require("./routes/vendorRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 
+app.use("/api/payments", paymentRoutes);
 app.use(express.json());
 
 app.get("/health", (req, res) => {
@@ -26,6 +29,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

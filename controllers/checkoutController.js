@@ -7,12 +7,8 @@ const User = require("../models/User");
 
 const checkoutSchema = Joi.object({
   addressId: Joi.string().required(),
-  paymentMethod: Joi.string().valid("cod", "card", "upi", "netbanking", "wallet", "paypal", "razorpay").required()
+  paymentMethod: Joi.string().valid("cash", "cod", "card", "upi", "netbanking", "wallet", "paypal", "razorpay").required()
 });
-
-function generateOrderNumber() {
-  return `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-}
 
 async function getCheckoutSummary(req, res, next) {
   try {
@@ -25,7 +21,7 @@ async function getCheckoutSummary(req, res, next) {
       return res.json({
         cart: { items: [], totalAmount: 0 },
         addresses: user?.addresses || [],
-        paymentMethods: ["cod", "card", "upi", "netbanking", "wallet", "paypal", "razorpay"]
+        paymentMethods: ["cash", "cod", "card", "upi", "netbanking", "wallet", "paypal", "razorpay"]
       });
     }
 
@@ -44,7 +40,7 @@ async function getCheckoutSummary(req, res, next) {
     res.json({
       cart,
       addresses: user?.addresses || [],
-      paymentMethods: ["cod", "card", "upi", "netbanking", "wallet", "paypal", "razorpay"],
+      paymentMethods: ["cash", "cod", "card", "upi", "netbanking", "wallet", "paypal", "razorpay"],
       unavailableItems
     });
   } catch (err) {
@@ -119,8 +115,8 @@ async function checkout(req, res, next) {
         [
           {
             vendor: bucket.vendor,
+            user: req.user._id,
             customer: req.user._id,
-            orderNumber: generateOrderNumber(),
             items: bucket.items,
             totalAmount: bucket.totalAmount,
             shippingAddress: {
@@ -131,8 +127,8 @@ async function checkout(req, res, next) {
               zipCode: shippingAddress.zipCode
             },
             paymentMethod: value.paymentMethod,
-            paymentStatus: value.paymentMethod === "cod" ? "pending" : "paid",
-            status: "pending"
+            paymentStatus: value.paymentMethod === "cash" || value.paymentMethod === "cod" ? "pending" : "paid",
+            orderStatus: "pending"
           }
         ],
         { session }
