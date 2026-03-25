@@ -4,7 +4,7 @@ Express.js + MongoDB (Mongoose) backend scaffold with JWT authentication.
 
 ## Requirements
 
-- Node.js (recommended: 18+)
+- Node.js (recommended: 22+)
 - MongoDB running locally or a hosted MongoDB URI
 
 ## Setup
